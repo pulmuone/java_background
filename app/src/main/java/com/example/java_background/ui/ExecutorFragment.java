@@ -1,14 +1,23 @@
 package com.example.java_background.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.example.java_background.MainViewModel;
 import com.example.java_background.R;
+import com.example.java_background.Result;
+import com.example.java_background.databinding.FragmentExecutorBinding;
+import com.example.java_background.repository.RepositoryCallback;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -16,6 +25,10 @@ import com.example.java_background.R;
  * create an instance of this fragment.
  */
 public class ExecutorFragment extends Fragment {
+
+    private static final String TAG = ExecutorFragment.class.getSimpleName();
+    private MainViewModel viewModel;
+    private FragmentExecutorBinding binding;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,18 +62,30 @@ public class ExecutorFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication())).get(MainViewModel.class);
+
+        viewModel.progressLiveData.observe(getViewLifecycleOwner(), progress -> {
+            binding.progress.setProgress(progress);
+
+        } );
+        binding.button.setOnClickListener(v -> viewModel.longTask());
+    }
+
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_executor, container, false);
+        binding = FragmentExecutorBinding.bind(view);
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_executor, container, false);
+        return binding.getRoot();
     }
 }
