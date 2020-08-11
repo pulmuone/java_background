@@ -17,26 +17,22 @@ public class NumberRepository {
 
     //익명 클래스 에서는 final
     public void longTask(final RepositoryCallback<Integer> callback) {
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    //background
-                    int num = 0;
-                    for (int i = 0; i < 100; i++) {
-                        num++;
-                        //UI 갱신을 위해서 콜백
-                        Result<Integer> result = new Result.Success<>(num);
-                        //callback.onComplete(result);
-                        notifyResult(result, callback);
-
-                        Thread.sleep(100);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    Result<Integer> result =  new Result.Error<>(e);
+        executor.execute(() -> {
+            try {
+                //background
+                int num = 0;
+                for (int i = 0; i < 100; i++) {
+                    num++;
+                    //UI 갱신을 위해서 콜백
+                    Result<Integer> result = new Result.Success<>(num);
+                    //callback.onComplete(result);
                     notifyResult(result, callback);
+                    Thread.sleep(100);
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Result<Integer> result =  new Result.Error<>(e);
+                notifyResult(result, callback);
             }
         });
     }
@@ -45,11 +41,6 @@ public class NumberRepository {
             final Result<Integer> result,
             final RepositoryCallback<Integer> callback
     ) {
-        resultHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onComplete(result);
-            }
-        });
+        resultHandler.post(() -> callback.onComplete(result));
     }
 }
