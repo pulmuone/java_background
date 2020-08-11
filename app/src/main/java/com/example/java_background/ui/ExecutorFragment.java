@@ -69,7 +69,6 @@ public class ExecutorFragment extends Fragment {
 
         viewModel.progressLiveData.observe(getViewLifecycleOwner(), progress -> {
             binding.progress.setProgress(progress);
-
         } );
         binding.button.setOnClickListener(v -> viewModel.longTask());
     }
